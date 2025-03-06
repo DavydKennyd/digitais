@@ -5,30 +5,76 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Flip-Flop JK e Registrador de 4 Bits com Animação 3D</title>
     <style>
+        /* Estilos para o cabeçalho */
+        .header {
+            width: 100%;
+            background-color: #4caf50;
+            color: white;
+            padding: 20px 0;
+            text-align: center;
+            font-size: 32px;
+            font-weight: bold;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 1000;
+        }
+
+        /* Estilos para o corpo da página */
         body {
             font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
             margin: 0;
             padding: 0;
             display: flex;
-            justify-content: center;
+            flex-direction: column;
             align-items: center;
-            height: 100vh;
-            overflow: hidden;
+            background-color: #f4f4f4;
+            padding-top: 80px;
+            padding-bottom: 60px;
+            min-height: 100vh;
+            overflow-y: auto;
+        }
+
+        .main-container {
+            flex:1;
+            display: flex;
+            width: 1200px;
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .description {
+            width: 30%;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 15px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            text-align: justify;
+            font-size: 18px;
+            z-index: -1;
+        }
+
+        .sync-async-description {
+            width: 30%;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 15px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            text-align: justify;
+            font-size: 18px;
+            z-index: -1;
         }
 
         .container {
+            width: 40%;
             background-color: #fff;
             padding: 30px;
             border-radius: 15px;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-            width: 800px;
             text-align: center;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
             position: relative;
-            z-index: 1;
+            z-index: -1;
         }
 
         h1, h2 {
@@ -44,23 +90,61 @@
             width: 100%;
         }
 
-        .inputs label {
-            font-size: 18px;
+        .checkbox-container {
+            display: inline-block;
+            position: relative;
+            padding-left: 35px;
+            margin-bottom: 12px;
             cursor: pointer;
-            color: #555;
-            font-weight: 600;
-            text-align: center;
+            font-size: 18px;
+            user-select: none;
+        }
+
+        .checkbox-container input {
+            position: absolute;
+            opacity: 0;
+            cursor: pointer;
+            height: 0;
+            width: 0;
+        }
+
+        .checkmark {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 25px;
+            width: 25px;
+            background-color: #eee;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+        }
+
+        .checkbox-container:hover input ~ .checkmark {
+            background-color: #ccc;
+        }
+
+        .checkbox-container input:checked ~ .checkmark {
+            background-color: #4caf50;
+        }
+
+        .checkmark:after {
+            content: "";
+            position: absolute;
+            display: none;
+        }
+
+        .checkbox-container input:checked ~ .checkmark:after {
             display: block;
-            margin: 5px 0;
         }
 
-        .inputs input[type="checkbox"] {
-            transform: scale(1.5);
-            margin-top: 5px;
-        }
-
-        .inputs label:hover {
-            color: #4caf50;
+        .checkbox-container .checkmark:after {
+            left: 9px;
+            top: 5px;
+            width: 5px;
+            height: 10px;
+            border: solid white;
+            border-width: 0 3px 3px 0;
+            transform: rotate(45deg);
         }
 
         .flip-flop-container {
@@ -187,94 +271,110 @@
             100% { transform: scale(1); }
         }
 
-        #threejs-container {
-            position: absolute;
-            top: 0;
-            left: 0;
+        /* Estilos para o footer */
+        .footer {
             width: 100%;
-            height: 100%;
-            z-index: 0;
+            background-color: #222;
+            color: white;
+            text-align: center;
+            padding: 15px 0;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            font-size: 16px;
+            font-weight: bold;
+            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .footer p {
+            margin: 0;
+            font-size: 14px;
         }
     </style>
 </head>
 <body>
-    <div id="threejs-container"></div>
-    <div class="container">
-        <h1>Flip-Flop JK (Síncrono e Assíncrono)</h1>
-        
-        <div class="flip-flop">
-            <h2>Controle do Flip-Flop JK</h2>
-            <div class="flip-flop-container">
-                <div>
-                    <label for="j">J:</label>
-                    <input type="checkbox" id="j">
+    <!-- Cabeçalho da página -->
+    <div class="header">
+        Simulação de Flip-Flop JK e Registrador de 4 Bits
+    </div>
+
+    <!-- Conteúdo principal -->
+    <div class="main-container">
+        <div class="description">
+            <h1>O que é um Flip-Flop JK?</h1>
+            <p>O Flip-Flop JK é um tipo de biestável usado em circuitos digitais. Ele possui duas entradas, J e K, além de um clock. Seu funcionamento pode ser descrito da seguinte forma:</p>
+            <ul>
+                <li><strong>J = 0, K = 0:</strong> Mantém o estado anterior.</li>
+                <li><strong>J = 0, K = 1:</strong> Reseta a saída para 0.</li>
+                <li><strong>J = 1, K = 0:</strong> Define a saída como 1.</li>
+                <li><strong>J = 1, K = 1:</strong> Alterna a saída (toggle).</li>
+            </ul>
+            <p>Esse Flip-Flop é amplamente utilizado em registradores e contadores digitais devido à sua versatilidade.</p>
+        </div>
+        <div class="sync-async-description">
+            <h1>Flip-Flop JK Síncrono vs Assíncrono</h1>
+            <p>O Flip-Flop JK pode operar de duas maneiras: <strong>síncrona</strong> e <strong>assíncrona</strong>.</p>
+            <ul>
+                <li><strong>Síncrono:</strong> A mudança de estado ocorre apenas quando há um pulso de clock. As entradas J e K são consideradas apenas no momento do clock.</li>
+                <li><strong>Assíncrono:</strong> A mudança de estado pode ocorrer independentemente do clock, geralmente através de uma entrada de reset ou set. Isso permite que o Flip-Flop seja redefinido ou configurado imediatamente.</li>
+            </ul>
+            <p>No exemplo ao lado, o botão "Reset (Assíncrono)" permite redefinir o estado do Flip-Flop independentemente do clock.</p>
+        </div>
+        <div class="container">
+            <h1>Flip-Flop JK (Síncrono e Assíncrono)</h1>
+            <div class="flip-flop">
+                <h2>Controle do Flip-Flop JK</h2>
+                <div class="flip-flop-container">
+                    <div>
+                        <label class="checkbox-container">J:
+                            <input type="checkbox" id="j">
+                            <span class="checkmark"></span>
+                        </label>
+                    </div>
+                    <div>
+                        <label class="checkbox-container">K:
+                            <input type="checkbox" id="k">
+                            <span class="checkmark"></span>
+                        </label>
+                    </div>
+                    <div>
+                        <label class="checkbox-container">Clock:
+                            <input type="checkbox" id="clock">
+                            <span class="checkmark"></span>
+                        </label>
+                    </div>
+                    <div>
+                        <label class="checkbox-container">Reset (Assíncrono):
+                            <input type="checkbox" id="reset">
+                            <span class="checkmark"></span>
+                        </label>
+                    </div>
                 </div>
-                <div>
-                    <label for="k">K:</label>
-                    <input type="checkbox" id="k">
-                </div>
-                <div>
-                    <label for="clock">Clock:</label>
-                    <input type="checkbox" id="clock">
-                </div>
-                <div>
-                    <label for="reset">Reset (Assíncrono):</label>
-                    <input type="checkbox" id="reset">
+                <div class="outputs">
+                    <p>Q: <span id="q">0</span></p>
+                    <p>Q': <span id="q_not">1</span></p>
                 </div>
             </div>
-
-            <div class="outputs">
-                <p>Q: <span id="q">0</span></p>
-                <p>Q': <span id="q_not">1</span></p>
+            <div class="wire"></div>
+            <div class="register">
+                <h2>Registrador de 4 Bits</h2>
+                <div class="bit inactive" id="bit1">0</div>
+                <div class="bit inactive" id="bit2">0</div>
+                <div class="bit inactive" id="bit3">0</div>
+                <div class="bit inactive" id="bit4">0</div>
             </div>
-        </div>
-
-        <div class="wire"></div>
-
-        <div class="register">
-            <h2>Registrador de 4 Bits</h2>
-            <div class="bit inactive" id="bit1">0</div>
-            <div class="bit inactive" id="bit2">0</div>
-            <div class="bit inactive" id="bit3">0</div>
-            <div class="bit inactive" id="bit4">0</div>
-        </div>
-
-        <div class="button-container">
-            <button id="manual-clock">Manual Clock</button>
+            <div class="button-container">
+                <button id="manual-clock">Manual Clock</button>
+            </div>
         </div>
     </div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <!-- Footer da página -->
+    <div class="footer">
+        &copy; 2025 Simulação de Flip-Flop JK. Todos os direitos reservados.
+    </div>
+
     <script>
-        // Configuração do Three.js
-        const scene = new THREE.Scene();
-        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-        const renderer = new THREE.WebGLRenderer({ antialias: true });
-        renderer.setSize(window.innerWidth, window.innerHeight);
-        document.getElementById('threejs-container').appendChild(renderer.domElement);
-
-        // Adiciona uma luz
-        const light = new THREE.DirectionalLight(0xffffff, 1);
-        light.position.set(5, 5, 5).normalize();
-        scene.add(light);
-
-        // Cria um cubo para representar o Flip-Flop
-        const geometry = new THREE.BoxGeometry();
-        const material = new THREE.MeshPhongMaterial({ color: 0x00ff00 });
-        const cube = new THREE.Mesh(geometry, material);
-        scene.add(cube);
-
-        camera.position.z = 5;
-
-        // Função de animação
-        function animate() {
-            requestAnimationFrame(animate);
-            cube.rotation.x += 0.01;
-            cube.rotation.y += 0.01;
-            renderer.render(scene, camera);
-        }
-        animate();
-
         // Lógica do Flip-Flop JK
         document.addEventListener('DOMContentLoaded', function () {
             const jInput = document.getElementById('j');
