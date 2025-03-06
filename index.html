@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flip-Flop JK e Registrador de 4 Bits com Animação 3D</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .container {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            width: 800px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+            z-index: 1;
+        }
+
+        h1, h2 {
+            color: #333;
+            font-size: 24px;
+            margin-bottom: 15px;
+        }
+
+        .inputs {
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+        }
+
+        .inputs label {
+            font-size: 18px;
+            cursor: pointer;
+            color: #555;
+            font-weight: 600;
+            text-align: center;
+            display: block;
+            margin: 5px 0;
+        }
+
+        .inputs input[type="checkbox"] {
+            transform: scale(1.5);
+            margin-top: 5px;
+        }
+
+        .inputs label:hover {
+            color: #4caf50;
+        }
+
+        .flip-flop-container {
+            display: flex;
+            justify-content: space-around;
+            width: 100%;
+            margin-top: 20px;
+        }
+
+        .flip-flop-container label {
+            font-size: 18px;
+            cursor: pointer;
+            color: #555;
+            font-weight: 600;
+        }
+
+        .register {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            margin-top: 30px;
+        }
+
+        .register .bit {
+            width: 50px;
+            height: 50px;
+            background-color: #ddd;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 20px;
+            color: #333;
+            transition: background-color 0.3s ease, transform 0.3s ease;
+            cursor: pointer;
+        }
+
+        .register .bit.active {
+            background-color: #4caf50;
+            color: white;
+            transform: scale(1.2);
+        }
+
+        .register .bit.inactive {
+            background-color: #ff5722;
+            color: white;
+            transform: scale(1);
+        }
+
+        .register .bit:hover {
+            background-color: #8bc34a;
+            transform: scale(1.3);
+        }
+
+        .flip-flop {
+            margin-bottom: 20px;
+        }
+
+        .flip-flop .bit-active {
+            color: green;
+            font-weight: bold;
+        }
+
+        .flip-flop .bit-inactive {
+            color: red;
+            font-weight: bold;
+        }
+
+        .outputs {
+            font-size: 20px;
+            margin-top: 20px;
+            font-weight: bold;
+            color: #555;
+        }
+
+        .outputs p {
+            margin: 10px 0;
+        }
+
+        .button-container {
+            margin-top: 20px;
+        }
+
+        .button-container button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            border: none;
+            border-radius: 5px;
+            background-color: #4caf50;
+            color: white;
+            transition: background-color 0.3s ease;
+        }
+
+        .button-container button:hover {
+            background-color: #45a049;
+        }
+
+        .wire {
+            height: 2px;
+            background-color: #000;
+            margin: 10px 0;
+            position: relative;
+        }
+
+        .wire::after {
+            content: '';
+            position: absolute;
+            top: -5px;
+            left: 0;
+            width: 100%;
+            height: 12px;
+            background-color: transparent;
+            border-top: 2px dashed #000;
+        }
+
+        .animation {
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        #threejs-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+        }
+    </style>
+</head>
+<body>
+    <div id="threejs-container"></div>
+    <div class="container">
+        <h1>Flip-Flop JK (Síncrono e Assíncrono)</h1>
+        
+        <div class="flip-flop">
+            <h2>Controle do Flip-Flop JK</h2>
+            <div class="flip-flop-container">
+                <div>
+                    <label for="j">J:</label>
+                    <input type="checkbox" id="j">
+                </div>
+                <div>
+                    <label for="k">K:</label>
+                    <input type="checkbox" id="k">
+                </div>
+                <div>
+                    <label for="clock">Clock:</label>
+                    <input type="checkbox" id="clock">
+                </div>
+                <div>
+                    <label for="reset">Reset (Assíncrono):</label>
+                    <input type="checkbox" id="reset">
+                </div>
+            </div>
+
+            <div class="outputs">
+                <p>Q: <span id="q">0</span></p>
+                <p>Q': <span id="q_not">1</span></p>
+            </div>
+        </div>
+
+        <div class="wire"></div>
+
+        <div class="register">
+            <h2>Registrador de 4 Bits</h2>
+            <div class="bit inactive" id="bit1">0</div>
+            <div class="bit inactive" id="bit2">0</div>
+            <div class="bit inactive" id="bit3">0</div>
+            <div class="bit inactive" id="bit4">0</div>
+        </div>
+
+        <div class="button-container">
+            <button id="manual-clock">Manual Clock</button>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script>
+        // Configuração do Three.js
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.getElementById('threejs-container').appendChild(renderer.domElement);
+
+        // Adiciona uma luz
+        const light = new THREE.DirectionalLight(0xffffff, 1);
+        light.position.set(5, 5, 5).normalize();
+        scene.add(light);
+
+        // Cria um cubo para representar o Flip-Flop
+        const geometry = new THREE.BoxGeometry();
+        const material = new THREE.MeshPhongMaterial({ color: 0x00ff00 });
+        const cube = new THREE.Mesh(geometry, material);
+        scene.add(cube);
+
+        camera.position.z = 5;
+
+        // Função de animação
+        function animate() {
+            requestAnimationFrame(animate);
+            cube.rotation.x += 0.01;
+            cube.rotation.y += 0.01;
+            renderer.render(scene, camera);
+        }
+        animate();
+
+        // Lógica do Flip-Flop JK
+        document.addEventListener('DOMContentLoaded', function () {
+            const jInput = document.getElementById('j');
+            const kInput = document.getElementById('k');
+            const clockInput = document.getElementById('clock');
+            const resetInput = document.getElementById('reset');
+            const qOutput = document.getElementById('q');
+            const qNotOutput = document.getElementById('q_not');
+            const bit1 = document.getElementById('bit1');
+            const bit2 = document.getElementById('bit2');
+            const bit3 = document.getElementById('bit3');
+            const bit4 = document.getElementById('bit4');
+            const manualClockButton = document.getElementById('manual-clock');
+            const wire = document.querySelector('.wire');
+
+            let q = 0;
+            let qNot = 1;
+            let register = [0, 0, 0, 0];
+
+            function updateFlipFlop() {
+                const j = jInput.checked ? 1 : 0;
+                const k = kInput.checked ? 1 : 0;
+                const clock = clockInput.checked ? 1 : 0;
+                const reset = resetInput.checked ? 1 : 0;
+
+                if (reset) {
+                    q = 0;
+                    qNot = 1;
+                } else if (clock) {
+                    if (j === 1 && k === 1) {
+                        q = q === 0 ? 1 : 0;
+                        qNot = q === 0 ? 1 : 0;
+                    } else if (j === 1 && k === 0) {
+                        q = 1;
+                        qNot = 0;
+                    } else if (j === 0 && k === 1) {
+                        q = 0;
+                        qNot = 1;
+                    }
+                }
+
+                qOutput.textContent = q;
+                qNotOutput.textContent = qNot;
+
+                // Atualiza o registrador de 4 bits com animação
+                register.unshift(q);
+                register.pop();
+
+                [bit1, bit2, bit3, bit4].forEach((bit, index) => {
+                    bit.textContent = register[index];
+                    if (register[index] === 1) {
+                        bit.classList.add('active');
+                        bit.classList.remove('inactive');
+                    } else {
+                        bit.classList.add('inactive');
+                        bit.classList.remove('active');
+                    }
+                });
+
+                // Animação do fio
+                wire.classList.add('animation');
+                setTimeout(() => {
+                    wire.classList.remove('animation');
+                }, 1000);
+            }
+
+            jInput.addEventListener('change', updateFlipFlop);
+            kInput.addEventListener('change', updateFlipFlop);
+            clockInput.addEventListener('change', updateFlipFlop);
+            resetInput.addEventListener('change', updateFlipFlop);
+
+            manualClockButton.addEventListener('click', function () {
+                clockInput.checked = !clockInput.checked;
+                updateFlipFlop();
+            });
+        });
+    </script>
+</body>
+</html>
